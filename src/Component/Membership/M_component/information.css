@@ -1,0 +1,31 @@
+.information .ant-calendar-picker-icon:after{
+	margin-left: 15px;
+    margin-top: 2px;
+	font-size: 21px;
+}
+.information .ant-input{
+	background-color: #fafafa;
+	border: 0;
+}
+.information .ant-calendar-range-picker-separator{
+	color: rgba(0, 0, 0, 0);
+}
+
+.information  .search{
+	position: absolute;
+	top: 0px;
+	right: 40px;
+	height: 30px;
+	width: 200px;
+}
+.information  .searchBtn{
+	background: black;
+	color: white;
+}
+.information .ant-input{
+	border: none;
+    outline: 0;
+    -webkit-box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    box-shadow:none;
+    
+}

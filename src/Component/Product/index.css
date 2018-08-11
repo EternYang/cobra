@@ -1,0 +1,75 @@
+.cent{
+	position: absolute;
+	top: 70px;
+	left: 0;
+	padding-left: 220px;
+	padding-right: 30px;
+	width: 100%;
+	z-index: 0;
+	margin-top: 10px;
+	overflow: hidden;
+}
+.cent h3{
+	font-weight: 600;
+	font-size: 18px;
+	margin-bottom: 15px;
+}
+.cent .form-control:focus{
+	border-color:black;
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(1, 11, 19, 0.6);
+}
+.cent .c .ant-input{
+	border-color: #333;
+}
+.cent .c .ant-input:hover {
+    border-color: #666;
+    
+}
+.cent.ant-input:focus {
+    border-color: #0a0a0a;
+    outline: 0;
+    -webkit-box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.2);
+    box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.2);
+    border-right-width: 1px !important;
+}
+.cent table {
+	margin-top: 30px;
+	border: 1px solid #ccc;
+}
+.cent .btn-group{
+	float: left;
+}
+.cent .search{
+	float: right;
+	height: 30px;
+	width: 200px;
+}
+.cent .searchBtn{
+	background: black;
+	color: white;
+}
+.date{
+	width: 200px;
+	margin-left: 20px;
+}
+.page{
+	float: left;
+}
+.dateActive{
+	background: black;
+	color: white;
+	border: none;
+}
+@media screen and (max-width: 768px) {
+  	.cent{
+  		position: absolute;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+		width: 100%;
+	}
+	.cent table {
+		font-size: 8px;
+		margin: 0;
+		padding: 0;
+	}
+}

@@ -1,0 +1,30 @@
+.rulesUl{
+	margin-top: 5px;
+}
+.rulesUl li{
+	margin-top: 8px;
+}
+.rulesUl li:before{
+	content:''; 
+	width:6px;
+	height:6px; 
+	border-radius:50%;
+	background:#666;
+	display:inline-block;
+	margin-right:5px;
+	vertical-align:middle;
+	margin-top:-3px;
+}
+.rules .rulesUl input{
+	border: none ;
+	border-bottom: 1px solid #ccc;
+	width: 80px ;
+	-webkit-box-shadow:none; 
+    box-shadow: none;
+}
+.rulesUl span{
+	display: inline-block;
+	padding: 0 8px;
+	width: 80px;
+	border-bottom:1px solid #666 ;
+}

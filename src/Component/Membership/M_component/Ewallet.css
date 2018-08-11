@@ -1,0 +1,29 @@
+.Ewallet{
+	margin-top:-10px;
+
+}
+.Ewallet>button{
+	float: left;
+	margin-bottom: 8px;
+	
+}
+.Ewallet .ant-calendar-picker-icon:after{
+	margin-left: 15px;
+    margin-top: 2px;
+	font-size: 21px;
+}
+.Ewallet .ant-input{
+	background-color: #fafafa;
+	border: 0;
+}
+.Ewallet .ant-calendar-range-picker-separator{
+	color: rgba(0, 0, 0, 0);
+}
+.Ewallet .search{
+	float: right;
+	margin-bottom: 8px;
+}
+.Ewallet  .searchBtn{
+	background: black;
+	color: white;
+}

@@ -1,0 +1,5 @@
+1.修改member_models,增加is_active以及nick_name字段
+	modify member models,add field(is_active,nick_name)
+	
+2.添加新的依托email的login方法以及register方法
+	add function(login,register)by email

@@ -1,0 +1,118 @@
+.Campaign{
+	margin-top: 60px;
+}
+.Campaign .back h5{
+	color: #cec8c8;
+}
+.Campaign .detail{
+	margin-top: 70px;
+	margin-left: 20px;
+}
+.Campaign .detail h3{
+	font-weight: 600;
+	font-size: 20px;
+	margin: 12px 0px;
+}
+.Campaign .ant-btn:hover, .ant-btn:focus{
+    color: #0d0d0d;
+    border-color: #0b0b0b;
+}
+.Campaign .search{
+	float: right;
+	width: 200px;
+	margin-right: 20px;
+}
+.Campaign .button2{
+	float: right;
+	margin-right: 20px;
+	
+}
+.Campaign .searchBtn{
+	background: black;
+	color: white;
+}
+.Campaign .ant-calendar-range-picker-separator {
+	display: none;
+}
+.inputTableButton{
+	position: absolute;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #e8e8e8;
+    padding: 10px 16px;
+    text-align: right;
+    left: 0;
+    background: #fff;
+    border-radius: 0 0 4px 4px;
+}
+
+.Target{
+	min-height: 25px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+}
+.Campaign .select{
+	width: 100%;
+}
+.title{
+	margin-top: 10px;
+	width: 240px;
+	margin-left: 120px;
+	border-bottom: 1px solid #ccc;
+	color: #ccc;
+	font-size: 18px;
+}
+.title h1{
+	text-align: center;
+	color: #ccc;
+}
+.campaignContent input{
+	width: 18% !important;
+	height: 28px !important;
+}
+.groupreset {
+	width: 100%;
+}
+.Repetitionperiod{
+	width: 92px;
+	height: 100px;
+	border: 1px solid #ccc;
+	padding: 8px 0;
+	border-radius: 5px;
+	float: left;
+}
+.Repetitionperiod li{
+	margin-bottom: 8px;
+	padding: 0 8px;
+	cursor: pointer;
+}
+
+.Repetitionperiod .anticon-right:before{
+	font-size: 12px;
+}
+.Repetitionperiod2{
+	float: right;
+	width: 316px;
+	min-height: 100px;
+	font-size: 12px;
+	border: 1px solid #ccc;
+	padding: 8px 8px;
+	border-radius: 5px;
+}
+.Repetitionperiod2 span.ant-radio + *{
+	font-weight: 600 ;
+	font-size: 12px;
+}
+.ant-radio:hover {
+}
+.Repetitionperiod2 .ant-checkbox + span{
+	font-size: 12px;
+}
+.Repetitionperiod .active{
+	background: black !important;
+	color: beige !important;
+}
+.Participantselect{
+	width: 100%;
+}
+

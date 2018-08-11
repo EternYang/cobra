@@ -1,0 +1,104 @@
+.cent{
+	position: absolute;
+	top: 70px;
+	left: 0;
+	padding-left: 220px;
+	padding-right: 30px;
+	width: 100%;
+	z-index: 0;
+	margin-top: 10px;
+	overflow: hidden;
+}
+.cent h3{
+	font-weight: 600;
+	font-size: 18px;
+	margin-bottom: 15px;
+}
+.cent .form-control:focus{
+	border-color:black;
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(1, 11, 19, 0.6);
+}
+.cent .c .ant-input{
+	border-color: #333;
+}
+.cent .c .ant-input:hover {
+    border-color: #666;
+    
+}
+.cent.ant-input:focus {
+    border-color: #0a0a0a;
+    outline: 0;
+    -webkit-box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.2);
+    box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.2);
+    border-right-width: 1px !important;
+}
+.cent table {
+	margin-top: 20px;
+	border: 1px solid #ccc;
+}
+.cent .btn-group{
+	float: left;
+}
+.cent .search{
+	float: right;
+	height: 30px;
+	width: 200px;
+}
+.cent .searchBtn{
+	background: black;
+	color: white;
+}
+.cent .detail .date{
+	width: 200px;
+	margin-left: 20px;
+}
+.cent .page{
+	float: left;
+}
+
+.cent .detail{
+	overflow: hidden;
+	height: 80px;
+	background:#eeeeee82;
+	padding: 8px 10px;
+	margin-bottom: 10px;
+}
+.cent .detail_avatar{
+	margin-top: 5px;
+	float: left;
+	height: 50px;
+    width: 50px;
+    border-radius: 25px;
+	font-size: 50px;
+}
+.cent .anticon-user:before {
+    font-size: 30px;
+}   
+.cent .detail .ant-avatar {
+	margin-top: 5px;
+	background: #888;
+	color: white;
+	line-height: 54px;
+}
+.cent .detail_font h5{
+	font-size: 12px;
+}
+.cent .detail_font h4{
+	font-size: 16px;
+	font-weight: 500;
+}
+.cent .detail_font p{
+	font-size: 14px;
+	line-height: 14px;
+}
+.cent .detail_font p span{
+	margin-left: 18px;
+}
+.cent .detail_font{
+	float: left;
+	margin-left: 20px;
+	
+}
+.cent .back h5{
+	color: #cec8c8;
+}

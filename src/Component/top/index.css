@@ -1,0 +1,42 @@
+.top{
+	width: 100%;
+	height: 60px;
+	line-height: 60px;
+	background:#2f2116;
+	position: fixed;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	z-index: 20;
+	min-width: 765px;
+}
+.CONBRA{
+	font-size: 22px;
+	font-weight: 600;
+	color:#CAB69C ;
+	margin-left: 20px;
+}
+.top li a{
+	float: left;
+	margin: 0 20px;
+	color:#c0a890 ;
+	text-decoration: none;
+}
+
+.top li:last-child{
+	float: right;
+	margin: 0 20px;
+}
+@media screen and (max-width: 768px) {
+  	.CONBRA{
+  		font-size: 12px;
+  		margin-left: 10px;
+	}
+	.top li a{
+		float: left;
+		margin: 0 10px;
+		font-size: 10px;
+		color:#c0a890 ;
+		text-decoration: none;
+	}
+}

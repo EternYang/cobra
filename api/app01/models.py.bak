@@ -1,0 +1,851 @@
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
+from rest_framework.authtoken.models import Token as authToken
+
+
+class Role(models.Model):
+    """
+    角色表
+    """
+    ADMIN, POS, MEMBERSHIP, ANONYMOUS = range(4)
+    NAME_CHOICES = (
+        (ADMIN, 'Admin'),
+        (POS, 'Pos'),
+        (MEMBERSHIP, 'Membership'),
+        (ANONYMOUS, 'Anonymous'),
+    )
+    name = models.IntegerField(
+        verbose_name="角色名称",
+        choices=NAME_CHOICES,
+        help_text="选择角色名称"
+    )
+
+
+class Nationality(models.Model):
+    """
+    国籍表
+    """
+    name = models.CharField(verbose_name='国籍名称', max_length=64, unique=True)
+
+
+class InterestGroup(models.Model):
+    """
+    爱好组表
+    """
+    name = models.CharField(verbose_name='爱好名称', max_length=32, unique=True)
+
+
+class Membership(AbstractBaseUser):
+    """
+    会员信息表
+    """
+    USERNAME_FIELD = 'mobileno'
+    REQUIRED_FIELDS = ('firstname', 'lastname')
+    name = models.CharField(verbose_name='会员名称', max_length=32, null=True, blank=True)
+    firstname = models.CharField(verbose_name='FirstName', max_length=32, null=True, blank=True)
+    lastname = models.CharField(verbose_name='LastName', max_length=32, null=True, blank=True)
+    dob = models.DateField(verbose_name='出生日期', null=True, blank=True)
+    M, F = range(2)
+    GENDER_CHOICES = (
+        (M, 'M'),
+        (F, 'F'),
+    )
+    gender = models.IntegerField(
+        verbose_name="性别",
+        choices=GENDER_CHOICES,
+        help_text="选择会员性别",
+        null=True,
+        blank=True
+    )
+    # salutation_choices = [
+    #     (1, "Mr"),
+    #     (2, "Ms"),
+    # ]
+    # salutation = models.IntegerField(
+    #     verbose_name="称呼",
+    #     choices=salutation_choices,
+    #     help_text="选择会员称呼"
+    #     , null=True, blank=True)
+    salutation = models.CharField(verbose_name='称呼', max_length=32, null=True, blank=True)
+    mobileno = models.CharField(verbose_name='手机号码', max_length=32, unique=True)
+    contactno = models.CharField(verbose_name='联系号码', max_length=32, unique=True, null=True, blank=True)
+    faxno = models.CharField(verbose_name='传真号', max_length=32, unique=True, null=True, blank=True)
+    referrercode = models.CharField(verbose_name='推荐号', max_length=64, null=True, blank=True, unique=True)
+    email = models.EmailField(verbose_name='邮箱', max_length=32, null=True, blank=True, unique=True)
+    nric = models.CharField(verbose_name='新加坡公民和永久住民身份证号', max_length=64, null=True, blank=True, unique=True)
+    passport = models.CharField(verbose_name='护照', max_length=64, null=True, blank=True, unique=True)
+    level = models.IntegerField(verbose_name='等级', default=1)
+    facebookid = models.CharField(verbose_name='FacebookID', max_length=64, null=True, blank=True)
+    facebookname = models.CharField(verbose_name='FacebookName', max_length=64, null=True, blank=True)
+    facebookphotolink = models.CharField(verbose_name='FacebookPhotoLink', max_length=128, null=True, blank=True)
+    facebooktoken = models.CharField(verbose_name='FacebookToken', max_length=128, null=True, blank=True)
+    facebooktokenexpiry = models.CharField(verbose_name='FacebookTokenExpiry', max_length=128, null=True, blank=True)
+    fullphotoname = models.CharField(verbose_name='图片全名称', max_length=32, null=True, blank=True)
+    base64photostring = models.CharField(verbose_name='Base64PhotoString', max_length=128, null=True, blank=True)
+    photolink = models.CharField(verbose_name='图片链接', max_length=64, null=True, blank=True)
+    racecode = models.CharField(verbose_name='RaceCode', max_length=64, null=True, blank=True)
+    notifypost = models.BooleanField(verbose_name='邮件通知', default=False)
+    notifysms = models.BooleanField(verbose_name='短信通知', default=False)
+    joindate = models.DateTimeField(verbose_name='注册时间', auto_now_add=True)
+    username = models.CharField(verbose_name='用于登录的用户名', max_length=32, null=True, blank=True)
+    password = models.CharField(verbose_name='用于登录的密码', max_length=128)
+    points = models.FloatField(verbose_name='积分数量', default=0)
+    order_count = models.IntegerField(verbose_name='下单数', default=0)
+    lastupdatetime = models.DateTimeField(verbose_name='最近更新时间', auto_now_add=True)
+    company = models.CharField(verbose_name='公司', max_length=64, null=True, blank=True)
+    nationality = models.CharField(verbose_name="国籍", max_length=32, null=True, blank=True)
+    role = models.ForeignKey(verbose_name="角色", to='Role', related_name='membership', on_delete=models.CASCADE, null=True, blank=True)
+    interestgroup = models.ForeignKey(verbose_name="爱好组", to='InterestGroup', related_name='membership',
+                                      on_delete=models.CASCADE, null=True, blank=True)
+    default_address = models.ForeignKey(verbose_name="默认地址", to='Address', related_name='memberships',
+                                        on_delete=models.CASCADE, null=True, blank=True)
+    last_login = models.DateTimeField(verbose_name='最后登录时间', auto_now_add=True)
+
+
+class Address(models.Model):
+    """
+    地址表
+    """
+    postalcode = models.CharField(verbose_name='邮编', max_length=64, null=True, blank=True)
+    country = models.CharField(verbose_name='国家', max_length=64, null=True, blank=True)
+    block = models.CharField(verbose_name='地区', max_length=64, null=True, blank=True)
+    street = models.CharField(verbose_name='街道', max_length=64, null=True, blank=True)
+    building = models.CharField(verbose_name='大楼名称', max_length=64, null=True, blank=True)
+    unit = models.CharField(verbose_name='门号', max_length=64, null=True, blank=True)
+    address = models.CharField(verbose_name='详细地址', max_length=128, null=True, blank=True)
+    membership = models.ForeignKey(verbose_name="会员", to='Membership', related_name='address', on_delete=models.CASCADE)
+
+
+class Branch(models.Model):
+    """
+    分店表
+    """
+    name = models.CharField(verbose_name='分店名称', max_length=64)
+    phone = models.CharField(verbose_name='联系电话', max_length=32, unique=True)
+    createtime = models.DateField(verbose_name='创建时间', auto_now_add=True)
+    address = models.ForeignKey(verbose_name="地址", to='Address', related_name='branch', on_delete=models.CASCADE)
+
+
+class Wallet(models.Model):
+    """
+    电子钱包表
+    """
+    balance = models.FloatField(verbose_name='余额', default=0)
+    createtime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+    lastupdatetime = models.DateTimeField(verbose_name='最近更新时间', auto_now_add=True)
+    membership = models.OneToOneField(verbose_name="会员", to='Membership', related_name='wallet',
+                                      on_delete=models.CASCADE)
+
+
+class Bank(models.Model):
+    """
+    银行表
+    """
+    name = models.CharField(verbose_name='银行名称', max_length=64, unique=True)
+
+
+class BindingCard(models.Model):
+    """
+    绑定银行卡表
+    """
+    card_number = models.CharField(verbose_name='卡号', max_length=64, unique=True)
+    createtime = models.DateTimeField(verbose_name='绑定时间', auto_now_add=True)
+    wallet = models.ForeignKey(verbose_name="电子钱包", to='Wallet', related_name='bindingcard', on_delete=models.CASCADE)
+    bank = models.ForeignKey(verbose_name="银行", to='Bank', related_name='bindingcard', on_delete=models.CASCADE)
+
+
+class Token(authToken):
+    """
+    Token表
+    """
+    # value = models.CharField(verbose_name='token值', max_length=128, unique=True)
+    # createtime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+    # lastupdatetime = models.DateTimeField(verbose_name='最近更新时间', auto_now_add=True)
+    # user = models.OneToOneField(verbose_name="会员", to='Membership', related_name='token', on_delete=models.CASCADE)
+    pass
+
+
+class RechargeRecord(models.Model):
+    """
+    充值记录表
+    """
+    value = models.CharField(verbose_name='token值', max_length=128, unique=True)
+    recharge_money = models.FloatField(verbose_name='充值金额')
+    createtime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+    wallet = models.ForeignKey(verbose_name="电子钱包", to='Wallet', related_name='rechargerecord',
+                               on_delete=models.CASCADE)
+    payment = models.ForeignKey(verbose_name="充值方式", to='Payment', related_name='rechargerecord',
+                                on_delete=models.CASCADE)
+
+
+class Category(models.Model):
+    """
+    产品分类表
+    """
+    name = models.CharField(verbose_name='产品分类名称', max_length=32, unique=True, null=True, blank=True)
+    category_code = models.CharField(verbose_name='产品分类编码', max_length=64, unique=True)
+    description = models.CharField(verbose_name='产品分类描述', max_length=128, null=True, blank=True)
+
+
+class Product(models.Model):
+    """
+    产品表
+    """
+    name = models.CharField(verbose_name='产品名称', max_length=32, unique=True, null=True, blank=True)
+    description = models.CharField(verbose_name='产品描述', max_length=128, null=True, blank=True)
+    price = models.FloatField(verbose_name='产品价格')
+    itemcode = models.CharField(verbose_name='产品编码', max_length=64, unique=True)
+    createtime = models.DateTimeField(verbose_name='产品上架时间', auto_now_add=True, null=True, blank=True)
+    category = models.ForeignKey(verbose_name="产品分类", to='Category', related_name='product', on_delete=models.CASCADE,
+                                 null=True, blank=True)
+
+
+class Payment(models.Model):
+    """
+    支付表
+    """
+    CASH, CREDIT_CARD = range(2)
+    PMY_METHOD_CHOICES = (
+        (CASH, 'Cash'),
+        (CREDIT_CARD, 'Credit Card'),
+    )
+    pmt_method = models.IntegerField(
+        verbose_name="支付方式",
+        choices=PMY_METHOD_CHOICES,
+        default=CASH,
+        help_text="选择支付方式"
+    )
+
+
+class Transaction(models.Model):
+    """
+    交易记录表
+    """
+    OutletCode = models.CharField(verbose_name='分店编码', max_length=32)
+    autoid = models.CharField(verbose_name='AutoID', max_length=32)
+    isgracetransact = models.NullBooleanField(verbose_name='IsGraceTransact', null=True, blank=True)
+    cycletype = models.CharField(verbose_name='CycleType', max_length=32)
+    TransactDatetime = models.DateTimeField(verbose_name='交易时间')
+    originaldate = models.DateTimeField(verbose_name='初始日期', null=True, blank=True)
+    transacttype = models.CharField(verbose_name='交易类型', max_length=32)
+    transactoutletcode = models.CharField(verbose_name='交易地点编码', max_length=32)
+    transactoutletname = models.CharField(verbose_name='交易地点名称', max_length=32, null=True, blank=True)
+    receiptno = models.CharField(verbose_name='收据编号', max_length=64)
+    itemcode = models.CharField(verbose_name='项目代码', max_length=32, null=True, blank=True)
+    spendingamt = models.FloatField(verbose_name='消费金额')
+    points = models.FloatField(verbose_name='获得积分')
+    remark = models.CharField(verbose_name='标注', max_length=32)
+    nettspent = models.FloatField(verbose_name='净花费')
+    cashierid = models.CharField(verbose_name='交易员ID', max_length=32)
+    posid = models.CharField(verbose_name='pos机ID', max_length=32)
+    voidby = models.CharField(verbose_name='VoidBy', max_length=32, null=True, blank=True)
+    voidreason = models.CharField(verbose_name='VoidReason', max_length=128, null=True, blank=True)
+    voidon = models.DateTimeField(verbose_name='交易时间', null=True, blank=True)
+    attachmenturl = models.CharField(verbose_name='附件URL', max_length=64, null=True, blank=True)
+    attachments = models.CharField(verbose_name='附件', max_length=64, null=True, blank=True)
+    luckydrawchances = models.FloatField(verbose_name='幸运抽奖机会次数', null=True, blank=True, default=0)
+    svamount = models.FloatField(verbose_name='SVAmount', null=True, blank=True, default=0)
+    svbal = models.IntegerField(verbose_name='SVBal', null=True, blank=True)
+    transaction = models.ForeignKey(verbose_name="关联交易记录ID", to='Transaction', related_name='relateds',
+                                    on_delete=models.CASCADE)
+
+
+class Sales(models.Model):
+    """
+    销售记录表
+    """
+    OutletCode = models.CharField(verbose_name='分店编码', max_length=32)
+    POSID = models.CharField(verbose_name='pos机ID', max_length=32)
+    CashierID = models.CharField(verbose_name='交易员ID', max_length=32)
+    CardNo = models.CharField(verbose_name='会员卡编号', max_length=32)
+    ReceiptNo = models.CharField(verbose_name='收据编号', max_length=64)
+    TransactDate = models.DateTimeField(verbose_name='交易日期')
+    TransactTime = models.TimeField(verbose_name='交易时间', null=True, blank=True)
+    SalesAmt = models.FloatField(verbose_name='销售金额')
+    SalesAmtToCalculatePoints = models.FloatField(verbose_name='SalesAmtToCalculatePoints')
+    PointsCalculationType = models.CharField(verbose_name='PointsCalculationType', max_length=16)
+    PointsUsage = models.CharField(verbose_name='PointsUsage', max_length=32)
+    IsRebateSystem = models.NullBooleanField(verbose_name='IsRebateSystem', null=True, blank=True)
+    RebateUsage = models.CharField(verbose_name='CycleType', max_length=16)
+    RebateToBeDeducted = models.FloatField(verbose_name='RebateToBeDeducted')
+    PointsToBeDeducted = models.FloatField(verbose_name='PointsToBeDeducted')
+    GivenRebateValue = models.FloatField(verbose_name='GivenRebateValue')
+    PointsToBeDeductedFromGrace = models.FloatField(verbose_name='PointsToBeDeductedFromGrace')
+    RunCampaign = models.NullBooleanField(verbose_name='RunCampaign', null=True, blank=True)
+    CampaignType = models.CharField(verbose_name='CampaignType', max_length=32)
+
+
+class TransactDetails(models.Model):
+    """
+    交易细节表
+    """
+    category_code = models.CharField(verbose_name='产品类别编码', max_length=32)
+    itemcode = models.CharField(verbose_name='产品编码', max_length=32, null=True, blank=True)
+    description = models.CharField(verbose_name='描述', max_length=128, null=True, blank=True)
+    qty = models.IntegerField(verbose_name='数量')
+    price = models.FloatField(verbose_name='价格')
+    nett = models.FloatField(verbose_name='净消费')
+    points = models.FloatField(verbose_name='获得的积分', default=0)
+    discountper = models.FloatField(verbose_name='净消费', default=0)
+    flavours = models.CharField(verbose_name='味道/口味', max_length=32, null=True, blank=True)
+
+    FRUIT_TEA, PREMUM_TEA, MILK_TEA = range(3)
+    TEA_BASE_CHOICES = (
+        (FRUIT_TEA, 'FRUIT TEA'),
+        (PREMUM_TEA, 'PREMUM TEA'),
+        (MILK_TEA, 'MILK TEA'),
+
+    )
+    tea_base = models.IntegerField(
+        verbose_name="茶种类",
+        choices=TEA_BASE_CHOICES,
+        help_text="选择茶种类",
+        null=True,
+        blank=True
+    )
+    LESS, MORE = range(2)
+    SWEETNAEE_CHOICES = (
+        (LESS, 'less'),
+        (MORE, 'more'),
+    )
+    sweetness = models.IntegerField(
+        verbose_name="甜味",
+        choices=SWEETNAEE_CHOICES,
+        help_text="选择甜味",
+        null=True, blank=True)
+    MEDIUM, LARGE = range(2)
+    SIZE_CHOICES = (
+        (MEDIUM, 'Meduim'),
+        (LARGE, 'Large'),
+    )
+
+    size = models.IntegerField(
+        verbose_name="大小",
+        choices=SIZE_CHOICES,
+        help_text="选择大小",
+        null=True, blank=True)
+
+    No_Pearls, AiYu_Jelly, Golden_Bubbles, Oreo, White_Jelly, Whipped_Cream = range(6)
+    toppings_choices = (
+        (No_Pearls, "No Pearls"),
+        (AiYu_Jelly, "AiYu Jelly"),
+        (Golden_Bubbles, "Golden Bubbles"),
+        (Oreo, "Oreo"),
+        (White_Jelly, "White Jelly"),
+        (Whipped_Cream, "Whipped Cream"),
+    )
+
+    toppings = models.IntegerField(
+        verbose_name="配料",
+        choices=toppings_choices,
+        help_text="选择配料",
+        default=1,
+        null=True, blank=True)
+
+    NORMAL, LESS_ICE, NO_ICE = range(3)
+    ICE_LEVEL_CHOICES = (
+        (NORMAL, 'Normal'),
+        (LESS_ICE, 'Less Ice'),
+        (NO_ICE, 'No Ice'),
+    )
+    ice_level = models.IntegerField(
+        verbose_name="冰冻程度",
+        choices=ICE_LEVEL_CHOICES,
+        help_text="选择冰冻程度",
+        null=True,
+        blank=True
+    )
+
+    ZERO, TWRNTY_FIVE, FIFTY, SEVENTY_FIVE, ONE_HUNDRED, ONE_HUNDRED_TEN = range(6)
+    SUGAR_LEVEL_CHOICES = (
+        (ZERO, "0%"),
+        (TWRNTY_FIVE, "25%"),
+        (FIFTY, "50%"),
+        (SEVENTY_FIVE, "75%"),
+        (ONE_HUNDRED, "100%"),
+        (ONE_HUNDRED_TEN, "110%"),
+    )
+    sugar_level = models.IntegerField(
+        verbose_name="加糖程度",
+        choices=SUGAR_LEVEL_CHOICES,
+        help_text="选择加糖程度",
+        default=1,
+        null=True,
+        blank=True
+    )
+
+    TWRNTY_FIVE, FIFTY, SEVENTY_FIVE, ONE_HUNDRED = range(4)
+
+    CONCENTRATION_CHOICES = (
+        (TWRNTY_FIVE, "25%"),
+        (FIFTY, "50%"),
+        (SEVENTY_FIVE, "75%"),
+        (ONE_HUNDRED, "100%"),
+    )
+    concentration = models.IntegerField(
+        verbose_name="浓度",
+        choices=CONCENTRATION_CHOICES,
+        help_text="选择浓度",
+        default=1,
+        null=True,
+        blank=True)
+    is_new = models.BooleanField(verbose_name='是不是新品', default=False)
+    method = models.CharField(verbose_name='method', max_length=32, null=True, blank=True)
+    transaction = models.ForeignKey(verbose_name="交易记录", to='Transaction', related_name='transactdetails',
+                                    on_delete=models.CASCADE)
+    branch = models.ForeignKey(verbose_name="分店", to='Branch', related_name='transactdetails', on_delete=models.CASCADE,
+                               null=True, blank=True)
+    membership2coupon = models.ForeignKey(verbose_name="会员优惠券", to='Membership2Coupon', related_name='transactdetails',
+                                          on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(verbose_name="产品", to='Product', related_name='transactdetails',
+                                on_delete=models.CASCADE)
+
+
+class Evaluation(models.Model):
+    """
+    评价表
+    """
+    service_content = models.CharField(verbose_name='服务评价内容', max_length=128)
+    service_satisfaction = models.IntegerField(verbose_name='服务满意度')  # 0-10分
+    productquality_content = models.CharField(verbose_name='产品质量评价内容', max_length=128)
+    productquality_satisfaction = models.IntegerField(verbose_name='产品质量满意度')  # 0-10分
+    createtime = models.DateTimeField(verbose_name='评价创建时间', auto_now_add=True)
+    lastupdatetime = models.DateTimeField(verbose_name='评价最近更新时间', auto_now_add=True)
+    transaction = models.ForeignKey(verbose_name="交易记录", to='Transaction', related_name='evaluation',
+                                    on_delete=models.CASCADE)
+
+
+class Cart(models.Model):
+    """
+    购物车表
+    """
+    quantity = models.IntegerField(verbose_name='数量')
+    status = models.IntegerField(verbose_name='记录状态')  # 1：正常，0：删除，2：已购买
+    price = models.FloatField(verbose_name='价格')
+    flavours = models.CharField(verbose_name='味道/口味', max_length=32, null=True, blank=True)
+
+    FRUIT_TEA, PREMUM_TEA, MILK_TEA = range(3)
+    TEA_BASE_CHOICES = (
+        (FRUIT_TEA, 'FRUIT TEA'),
+        (PREMUM_TEA, 'PREMUM TEA'),
+        (MILK_TEA, 'MILK TEA'),
+
+    )
+    tea_base = models.IntegerField(
+        verbose_name="茶种类",
+        choices=TEA_BASE_CHOICES,
+        help_text="选择茶种类",
+        default=1,
+        null=True,
+        blank=True
+    )
+
+    LESS, MORE = range(2)
+    SWEETNAEE_CHOICES = (
+        (LESS, 'less'),
+        (MORE, 'more'),
+    )
+    sweetness = models.IntegerField(
+        verbose_name="甜味",
+        choices=SWEETNAEE_CHOICES,
+        help_text="选择甜味",
+        null=True, blank=True)
+
+    MEDIUM, LARGE = range(2)
+    SIZE_CHOICES = (
+        (MEDIUM, 'Meduim'),
+        (LARGE, 'Large'),
+    )
+
+    size = models.IntegerField(
+        verbose_name="大小",
+        choices=SIZE_CHOICES,
+        help_text="选择大小",
+        default=1,
+        null=True, blank=True)
+
+    No_Pearls, AiYu_Jelly, Golden_Bubbles, Oreo, White_Jelly, Whipped_Cream = range(6)
+    toppings_choices = (
+        (No_Pearls, "No Pearls"),
+        (AiYu_Jelly, "AiYu Jelly"),
+        (Golden_Bubbles, "Golden Bubbles"),
+        (Oreo, "Oreo"),
+        (White_Jelly, "White Jelly"),
+        (Whipped_Cream, "Whipped Cream"),
+    )
+
+    toppings = models.IntegerField(
+        verbose_name="配料",
+        choices=toppings_choices,
+        help_text="选择配料",
+        default=1,
+        null=True, blank=True)
+
+    NORMAL, LESS_ICE, NO_ICE = range(3)
+    ICE_LEVEL_CHOICES = (
+        (NORMAL, 'Normal'),
+        (LESS_ICE, 'Less Ice'),
+        (NO_ICE, 'No Ice'),
+    )
+    ice_level = models.IntegerField(
+        verbose_name="冰冻程度",
+        choices=ICE_LEVEL_CHOICES,
+        help_text="选择冰冻程度",
+        default=1,
+        null=True,
+        blank=True
+    )
+
+    ZERO, TWRNTY_FIVE, FIFTY, SEVENTY_FIVE, ONE_HUNDRED, ONE_HUNDRED_TEN = range(6)
+    SUGAR_LEVEL_CHOICES = (
+        (ZERO, "0%"),
+        (TWRNTY_FIVE, "25%"),
+        (FIFTY, "50%"),
+        (SEVENTY_FIVE, "75%"),
+        (ONE_HUNDRED, "100%"),
+        (ONE_HUNDRED_TEN, "110%"),
+    )
+    sugar_level = models.IntegerField(
+        verbose_name="加糖程度",
+        choices=SUGAR_LEVEL_CHOICES,
+        help_text="选择加糖程度",
+        default=1,
+        null=True, blank=True)
+
+    TWRNTY_FIVE, FIFTY, SEVENTY_FIVE, ONE_HUNDRED = range(4)
+
+    CONCENTRATION_CHOICES = (
+        (TWRNTY_FIVE, "25%"),
+        (FIFTY, "50%"),
+        (SEVENTY_FIVE, "75%"),
+        (ONE_HUNDRED, "100%"),
+    )
+    concentration = models.IntegerField(
+        verbose_name="浓度",
+        choices=CONCENTRATION_CHOICES,
+        help_text="选择浓度",
+        default=1,
+        null=True,
+        blank=True
+    )
+    is_new = models.BooleanField(verbose_name='是不是新品', default=False)
+    createtime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+    lastupdatetime = models.DateTimeField(verbose_name='最近更新时间', auto_now_add=True)
+    product = models.ForeignKey(verbose_name="产品", to='Product', related_name='cart', on_delete=models.CASCADE)
+    membership = models.ForeignKey(verbose_name="会员", to='Membership', related_name='cart', on_delete=models.CASCADE)
+
+
+class Campaign(models.Model):
+    """
+    活动表
+    """
+    name = models.CharField(verbose_name='活动名称', max_length=32)
+    description = models.CharField(verbose_name='活动描述', max_length=128, null=True, blank=True)
+    amount_limit = models.IntegerField(verbose_name='金额限制', null=True, blank=True)  # 为100时，代表满100才实行优惠策略;为null时，代表无限制
+    DISCOUNT_PER, DISCOUNT_AMOUNT, CASH_VOUCHER, PRODUCT_VOUCHER = range(4)
+    TYPE_CHOICES = (
+        (DISCOUNT_PER, "Discount_per"),
+        (DISCOUNT_AMOUNT, "Discount_amount"),
+        (CASH_VOUCHER, "Cash Voucher"),
+        (PRODUCT_VOUCHER, "Product Voucher"),
+    )  # 优惠金额/优惠百分比/赠送产品百分比
+    type = models.IntegerField(
+        verbose_name="优惠类型",
+        choices=TYPE_CHOICES,
+        default=1,
+        help_text="选择优惠类型"
+    )
+    discount_amount = models.IntegerField(verbose_name='优惠金额', null=True, blank=True)  # 减10元
+    discount_per = models.IntegerField(verbose_name='优惠百分比', null=True, blank=True)  # 8.86代表8.86折
+    # gift_per = models.IntegerField(verbose_name='赠送产品百分比', null=True, blank=True)  # 0.5代表买二赠一，1.5代表买二赠三
+    start_time = models.DateTimeField(verbose_name='活动开始时间')
+    end_time = models.DateTimeField(verbose_name='活动结束时间')
+    level = models.IntegerField(verbose_name='等级', null=True, blank=True)
+    age_min = models.IntegerField(verbose_name='最小年龄', null=True, blank=True)
+    age_max = models.IntegerField(verbose_name='最大年龄', null=True, blank=True)
+    M, F = range(2)
+    GENDER_CHOICES = (
+        (M, 'M'),
+        (F, 'F'),
+    )
+    gender = models.IntegerField(
+        verbose_name="性别",
+        choices=GENDER_CHOICES,
+        help_text="选择性别",
+        null=True,
+        blank=True
+    )
+    company = models.CharField(verbose_name='公司', max_length=64, null=True, blank=True)
+    Receipients = models.CharField(verbose_name='目标群体', max_length=64, null=True, blank=True)
+    Promo = models.CharField(verbose_name='促销内容', max_length=64, null=True, blank=True)
+    CallToAction = models.CharField(verbose_name='促发活动条件', max_length=64, null=True, blank=True)
+    ConditionsToSet = models.CharField(verbose_name='活动条件', max_length=64, null=True, blank=True)
+    TermsConditions = models.CharField(verbose_name='条款和条件', max_length=64, null=True, blank=True)
+
+
+class Campaign2Product2Branch(models.Model):
+    """
+    活动-产品-分店
+    """
+    MEDIUM, LARGE = range(2)
+    SIZE_CHOICES = (
+        (MEDIUM, "Medium"),
+        (LARGE, "Large"),
+    )
+    size = models.IntegerField(
+        verbose_name="大小",
+        choices=SIZE_CHOICES,
+        default=1,
+        help_text="1：medium；2：large"
+    )
+    campaign = models.ForeignKey(verbose_name="活动", to='Campaign', related_name='campaign2product2branch',
+                                 on_delete=models.CASCADE)
+    product = models.ForeignKey(verbose_name="产品", to='Product', related_name='campaign2product2branch',to_field="name",
+                                on_delete=models.CASCADE)
+    branch = models.ForeignKey(verbose_name="分店", to='Branch', related_name='campaign2product2branch',
+                               on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [
+            ('campaign', 'product', 'branch'),
+        ]
+
+
+class PointsExchangeRule(models.Model):
+    """
+    积分兑换规则表
+    """
+    remarks = models.CharField(verbose_name='积分兑换规则描述', max_length=128, null=True, blank=True)
+    content = models.CharField(verbose_name='积分兑换规则名称', max_length=32)
+
+    PRODUCT, COUPON = range(2)
+    TYPE_CHOICES = (
+        (PRODUCT, 'Product'),
+        (COUPON, 'Coupon'),
+    )  # 兑换产品或者优惠券
+    type = models.IntegerField(
+        verbose_name="积分兑换类型",
+        choices=TYPE_CHOICES,
+        default=1,
+        help_text="选择积分兑换类型"
+    )
+    expend = models.IntegerField(verbose_name='消耗积分数量')
+    exchange = models.IntegerField(verbose_name='兑换到的产品/优惠券数量')
+    start_time = models.DateTimeField(verbose_name='有效期起始时间')
+    end_time = models.DateTimeField(verbose_name='有效期结束时间')
+
+
+class Coupon(models.Model):
+    """
+    优惠券表
+    """
+    name = models.CharField(verbose_name='优惠券名称', max_length=32)  # 满100减10
+    # description = models.CharField(verbose_name='优惠券描述', max_length=128, null=True, blank=True)
+    # amount_limit = models.IntegerField(verbose_name='金额限制')
+    # discount = models.IntegerField(verbose_name='折扣金额量')
+    # level_limit = models.IntegerField(verbose_name='会员等级限制')  # 该字段为2时，只有会员等级2以上的才有资格获得该优惠券
+    # start_time = models.DateTimeField(verbose_name='有效期起始时间')
+    # end_time = models.DateTimeField(verbose_name='有效期结束时间')
+    campaign = models.ForeignKey(verbose_name='活动', to='Campaign', related_name='coupon', on_delete=models.CASCADE)
+
+
+class PER2Coupon2Branch(models.Model):
+    """
+    积分兑换规则-优惠券-分店
+    """
+    pointsexchangerule = models.ForeignKey(verbose_name="积分兑换规则", to='PointsExchangeRule',
+                                           related_name='per2coupon2branch',
+                                           on_delete=models.CASCADE)
+    coupon = models.ForeignKey(verbose_name="优惠券", to='Coupon', related_name='per2coupon2branch',
+                               on_delete=models.CASCADE)
+    branch = models.ForeignKey(verbose_name="分店", to='Branch', related_name='per2coupon2branch',
+                               on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [
+            ('pointsexchangerule', 'coupon', 'branch'),
+        ]
+
+
+class PER2Product2Branch(models.Model):
+    """
+    积分兑换规则-产品-分店
+    """
+    pointsexchangerule = models.ForeignKey(verbose_name="积分兑换规则", to='PointsExchangeRule',
+                                           related_name='per2product2branch',
+                                           on_delete=models.CASCADE)
+    product = models.ForeignKey(verbose_name="产品", to='Product', related_name='per2product2branch',
+                                on_delete=models.CASCADE)
+    branch = models.ForeignKey(verbose_name="分店", to='Branch', related_name='per2product2branch',
+                               on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [
+            ('pointsexchangerule', 'product', 'branch'),
+        ]
+
+
+class PointsBonusRule(models.Model):
+    """
+    积分奖励规则表
+    """
+    content = models.CharField(verbose_name='积分奖励规则名称', max_length=32)
+    remarks = models.CharField(verbose_name='积分奖励规则描述', max_length=128, null=True, blank=True)
+    NEW_PRODUCT, PURCHASE_REWARD, FESTIVAL, COMPLETE_INFORMATION = range(4)
+    TYPE_CHOICES = (
+        (NEW_PRODUCT, "New Product"),
+        (PURCHASE_REWARD, "Purchase Reward"),
+        (FESTIVAL, "Festival"),
+        (COMPLETE_INFORMATION, "Complete Information"),
+    )
+    type = models.IntegerField(
+        verbose_name="积分奖励类型",
+        choices=TYPE_CHOICES,
+        default=1,
+        help_text="选择积分奖励类型"
+    )
+    bonus = models.IntegerField(verbose_name='积分奖励数量')
+    start_time = models.DateTimeField(verbose_name='有效期起始时间')
+    end_time = models.DateTimeField(verbose_name='有效期结束时间')
+
+
+class PBR2Product2Branch(models.Model):
+    """
+    积分奖励规则-产品-分店
+    """
+    pointsbonusrule = models.ForeignKey(verbose_name="积分奖励规则", to='PointsBonusRule',
+                                        related_name='pbr2product2branch',
+                                        on_delete=models.CASCADE)
+    product = models.ForeignKey(verbose_name="产品", to='Product', related_name='pbr2product2branch',
+                                on_delete=models.CASCADE)
+    branch = models.ForeignKey(verbose_name="分店", to='Branch', related_name='pbr2product2branch',
+                               on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [
+            ('pointsbonusrule', 'product', 'branch'),
+        ]
+
+
+class Coupon2Product2Branch(models.Model):
+    """
+    优惠券-产品-分店
+    """
+    coupon = models.ForeignKey(verbose_name="优惠券", to='Coupon',
+                               related_name='coupon2product2branch',
+                               on_delete=models.CASCADE)
+    product = models.ForeignKey(verbose_name="产品", to='Product', related_name='coupon2product2branch',
+                                on_delete=models.CASCADE)
+    branch = models.ForeignKey(verbose_name="分店", to='Branch', related_name='coupon2product2branch',
+                               on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [
+            ('coupon', 'product', 'branch'),
+        ]
+
+
+class Membership2Coupon(models.Model):
+    """
+    会员优惠券认领表
+    """
+    status = models.IntegerField(verbose_name='认领状态', default=1)  # 1代表可用，0代表失效，2表示已使用
+    membership = models.ForeignKey(verbose_name="会员", to='Membership',
+                                   related_name='membership2coupon',
+                                   on_delete=models.CASCADE)
+    coupon = models.ForeignKey(verbose_name="优惠券", to='Coupon', related_name='membership2coupon',
+                               on_delete=models.CASCADE)
+
+
+class Card(models.Model):
+    """
+    会员卡表
+    """
+    cardno = models.CharField(verbose_name='会员卡编码', max_length=64)
+    printedname = models.CharField(verbose_name='会员卡所有人名称', max_length=32, null=True, blank=True)
+    membershiptypecode = models.CharField(verbose_name='会员类型代码', max_length=32, null=True, blank=True)
+    membershipstatuscode = models.CharField(verbose_name='会员状态代码', max_length=32, null=True, blank=True)
+    membershipphoto = models.CharField(verbose_name='会员图片', max_length=32, null=True, blank=True)
+    issuedate = models.DateTimeField(verbose_name='发行时间')
+    effectivedate = models.DateTimeField(verbose_name='生效日期')
+    expirydate = models.DateTimeField(verbose_name='到期日期')
+    Printed = models.NullBooleanField(verbose_name='是否打印', null=True, blank=True)
+    printeddate = models.DateTimeField(verbose_name='打印日期', null=True, blank=True)
+    reneweddate = models.DateTimeField(verbose_name='更新日期', null=True, blank=True)
+    tmpeffectivedate = models.DateTimeField(verbose_name='临时生效日期', null=True, blank=True)
+    tmpexpirydate = models.DateTimeField(verbose_name='临时到期日期', null=True, blank=True)
+    tmpmembershipstatuscode = models.CharField(verbose_name='临时会员状态代码', max_length=32, null=True, blank=True)
+    pointsbal = models.FloatField(verbose_name='积分余额', null=True, blank=True)
+    totalpointsbal = models.FloatField(verbose_name='总积分余额', null=True, blank=True)
+    holdingpoints = models.FloatField(verbose_name='持有的积分', null=True, blank=True)
+    membershipdiscount = models.FloatField(verbose_name='会员优惠金额', null=True, blank=True)
+    remarks = models.CharField(verbose_name='标注', max_length=32, null=True, blank=True)
+    tiercode = models.CharField(verbose_name='等级编码', max_length=32, null=True, blank=True)
+    tieranniversarystartdate = models.DateTimeField(verbose_name='等级周期开始日期', null=True, blank=True)
+    tieranniversaryenddate = models.DateTimeField(verbose_name='等级周期结束日期', null=True, blank=True)
+    loyaltymessage = models.CharField(verbose_name='LoyaltyMessage', max_length=32, null=True, blank=True)
+    dollartopointsratio = models.FloatField(verbose_name='美元兑点比率', null=True, blank=True)
+
+    IsSupplementary = models.NullBooleanField(verbose_name='是否补充', null=True, blank=True)
+    isBurnSupplementaryCard = models.NullBooleanField(verbose_name='isBurnSupplementaryCard', null=True, blank=True)
+    relationid = models.CharField(verbose_name='RelationID', max_length=64, null=True, blank=True)
+    primarycardno = models.CharField(verbose_name='主会员卡编码', max_length=64, null=True, blank=True)
+    primaryrelationid = models.CharField(verbose_name='主会员卡关系ID', max_length=64, null=True, blank=True)
+    PrimaryCardExpiryDate = models.DateTimeField(verbose_name='主会员卡过期日期', null=True, blank=True)
+    PrimaryCardEffectiveDate = models.DateTimeField(verbose_name='主会员卡生效日期', null=True, blank=True)
+    PtsHoldingDays = models.IntegerField(verbose_name='积分持有天数', null=True, blank=True)
+    CurrentNetSpent = models.FloatField(verbose_name='当前净消费', null=True, blank=True)
+    passcode = models.CharField(verbose_name='Passcode', max_length=32, null=True, blank=True)
+    StoredValueBalance = models.FloatField(verbose_name='储值余额', null=True, blank=True)
+    currency = models.CharField(verbose_name='货币', max_length=64, null=True, blank=True)
+    LastVisitedDate = models.DateTimeField(verbose_name='最近关顾日期', null=True, blank=True)
+    LastVisitedOutlet = models.CharField(verbose_name='最近关顾地点', max_length=32, null=True, blank=True)
+    PointsToNextTier = models.FloatField(verbose_name='还差多少积分可以升级', null=True, blank=True)
+    NettToNextTier = models.FloatField(verbose_name='还差多少净消费可以升级', null=True, blank=True)
+    LuckyDrawConversionPtsUsageType = models.CharField(verbose_name='幸运抽奖兑换积分使用类型', max_length=32, null=True,
+                                                       blank=True)
+    LuckyDrawConversionRate = models.CharField(verbose_name='幸运抽奖转化率', max_length=32, null=True, blank=True)
+    SpentQuotaIncreasementExpiredOn = models.CharField(verbose_name='耗用配额增加已到期', max_length=32, null=True, blank=True)
+    PickupDate = models.DateTimeField(verbose_name='获得日期', null=True, blank=True)
+    PickupBy = models.CharField(verbose_name='获得方式', max_length=32, null=True, blank=True)
+    CurrentRCNettSpent = models.IntegerField(verbose_name='当前净消费(取整数)', null=True, blank=True)
+    CMCEarnedPoints = models.FloatField(verbose_name='赚取的积分数', null=True, blank=True)
+    CRCEarnedPoints = models.IntegerField(verbose_name='赚取的积分数(取整数)', null=True, blank=True)
+    CurrentTierNett = models.FloatField(verbose_name='当前等级的净消费条件', null=True, blank=True)
+    CurrentTierAmt = models.FloatField(verbose_name='CurrentTierAmt', null=True, blank=True)
+    BringFwdTierNett = models.FloatField(verbose_name='BringFwdTierNett', null=True, blank=True)
+    BringFwdTierAmt = models.FloatField(verbose_name='BringFwdTierAmt', null=True, blank=True)
+    BringFwdTierExpiry = models.CharField(verbose_name='BringFwdTierExpiry', max_length=32, null=True, blank=True)
+    BringFwdTierStartDate = models.DateTimeField(verbose_name='BringFwdTierStartDate', null=True, blank=True)
+    ExtendedTierAnniversaryEndDate = models.DateTimeField(verbose_name='ExtendedTierAnniversaryEndDate', null=True,
+                                                          blank=True)
+    MemberID = models.ForeignKey(verbose_name="会员", to='Membership',
+                                 related_name='card',
+                                 on_delete=models.CASCADE)
+    RewardCycle_id = models.ForeignKey(verbose_name='会员卡奖励周期', to='RewardCycle', related_name='card',
+                                       on_delete=models.CASCADE, null=True, blank=True)
+
+
+class RewardCycle(models.Model):
+    """
+    会员卡奖励周期表
+    """
+    Type = models.CharField(verbose_name='奖励类型', max_length=32, null=True, blank=True)
+    Value = models.FloatField(verbose_name='奖励金额', null=True, blank=True)
+    ExpiringDate = models.DateTimeField(verbose_name='到期日期', null=True, blank=True)
+    CycleEndDate = models.DateTimeField(verbose_name='周期结束的日期', null=True, blank=True)
+
+
+class MembershipMovement(models.Model):
+    """
+    会员卡等级调整表
+    """
+    MovementType = models.CharField(verbose_name='等级调整类型', max_length=32, null=True, blank=True)
+    From = models.CharField(verbose_name='调整前等级', max_length=32)
+    To = models.CharField(verbose_name='调整后等级', max_length=32)
+    ChangedOn = models.DateTimeField(verbose_name='调整时间')
+    TierAnniversaryStartDate = models.DateTimeField(verbose_name='等级周期开始日期', null=True, blank=True)
+    TierAnniversaryEndDate = models.DateTimeField(verbose_name='等级周期结束日期', null=True, blank=True)
+    OldTierAnniversaryStartDate = models.DateTimeField(verbose_name='上一个等级周期开始日期', null=True, blank=True)
+    OldTierAnniversaryEndDate = models.DateTimeField(verbose_name='上一个等级周期结束日期', null=True, blank=True)
+    card = models.ForeignKey(verbose_name='会员卡', to='Card', related_name='membershipmovement', on_delete=models.CASCADE)
