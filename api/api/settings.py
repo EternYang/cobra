@@ -70,8 +70,8 @@ MIDDLEWARE = [
     # 'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'django.contrib.messages.middleware.MessageMiddleware',
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'django.middleware.cache.FetchFromCacheMiddleware',
@@ -115,19 +115,19 @@ CORS_ORIGIN_ALLOW_ALL = True
 ROOT_URLCONF = 'api.urls'
 
 TEMPLATES = [
-    # {
-    #     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    #     'DIRS': [],
-    #     'APP_DIRS': True,
-    #     'OPTIONS': {
-    #         'context_processors': [
-    #             'django.template.context_processors.debug',
-    #             'django.template.context_processors.request',
-    #             'django.contrib.auth.context_processors.auth',
-    #             'django.contrib.messages.context_processors.messages',
-    #         ],
-    #     },
-    # },
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 WSGI_APPLICATION = 'api.wsgi.application'
@@ -161,59 +161,59 @@ AUTH_PASSWORD_VALIDATORS = [
     # },
 ]
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
-        },
-    },
-}
-
 # LOGGING = {
 #     'version': 1,
-#     'disable_existing_loggers': True,
-#     'formatters': {
-#         'verbose': {
-#             'format': '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
-#             'datefmt': '%Y-%m-%d %H:%M:%S'
-#         },
-#     },
+#     'disable_existing_loggers': False,
 #     'handlers': {
 #         'console': {
-#             'level': 'DEBUG',
 #             'class': 'logging.StreamHandler',
-#             'formatter': 'verbose'
-#         },
-#         'logfile': {
-#             'level': 'DEBUG',
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'filename': 'cobra.log',
-#             'maxBytes': 1024 * 1024 * 5,  # 5 MB
-#             'backupCount': 7,
-#             'formatter': 'verbose'
 #         },
 #     },
 #     'loggers': {
 #         'django.db.backends': {
-#             'level': 'ERROR',
-#             'handlers': ['console', 'logfile'],
-#             'propagate': False,
+#             'handlers': ['console'],
+#             'level': 'DEBUG' if DEBUG else 'INFO',
 #         },
-#         'django': {
-#             'handlers': ['console', 'logfile'],
-#             'propagate': False,
-#             'level': 'DEBUG',
-#         },
-#     }
+#     },
 # }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+           'format': '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
+           'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'cobra.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 7,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console', 'logfile'],
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console', 'logfile'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
+    }
+}
 
 
 # Internationalization
