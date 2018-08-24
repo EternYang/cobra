@@ -47,6 +47,7 @@ class Performance extends React.Component {
 			let store           = req2.data.results
 			let campaigndata2   = req3.data.results
 			campaigndata        = {...campaigndata,...campaigndata2}
+			console.log(campaigndata)
 			this.setState({
 			vouchercount,
 			voucher,

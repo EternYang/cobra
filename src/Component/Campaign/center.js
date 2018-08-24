@@ -122,7 +122,7 @@ class CampaignCenter extends React.Component {
 				))
 			}
 		    if(campaign_condition.every_purchase_products.length>0){
-				this.requnicategory(campaign_condition.every_purchase_products)
+				this.reqUniproductname(campaign_condition.every_purchase_products)
 			}
 		}
 		
@@ -197,14 +197,15 @@ class CampaignCenter extends React.Component {
 		this.setState({ Drawerdata:1 })
 	}
 	Edit = () => {
-		let { unicampaign,id,outlets,occupation,membership } = this.state
-		const Editdata = {outlets,occupation,membership  }
+		let { unicampaign,id,outlets,occupation,membership,univoucher,productname,category,upgrade_membership } = this.state
+		const Editdata = {outlets,occupation,membership,univoucher,productname,category,upgrade_membership  }
 		if(unicampaign.state===4){
 			const recovery = 'recovery'
 			this.props.callbackParent2(unicampaign,id,Editdata,recovery);
 		}else{
 			this.props.callbackParent2(unicampaign,id,Editdata);
 		}
+		console.log(unicampaign,Editdata)
 		this.onClose()
 	}
 	onClose = () => {
@@ -214,7 +215,8 @@ class CampaignCenter extends React.Component {
 	  	membership:[],
 	  	occupation :[],
 	  	outlets:[],
-	  	campaign_condition:{}
+	  	campaign_condition:{},
+	  	productname:[]
 	  });
 	}
 	handleData= () => {
@@ -262,7 +264,7 @@ class CampaignCenter extends React.Component {
     render() {
      let  { campaigndata,count,page } =this.props
      let  { unicampaign,visible,Drawerdata,membership,occupation,outlets,upgrade_membership,univoucher,
-      		productname,category,campaign_condition } =this.state
+      		productname,campaign_condition } =this.state
      const pagenation = {
   		   current:page,
   		   hideOnSinglePage:true,
@@ -496,7 +498,7 @@ class CampaignCenter extends React.Component {
 	          	? '● Discount: Enjoy ' + unicampaign.campaigntypes[0].last_discount_per + ' % off' : ''}
 	         	</p>
 	          <p>{(unicampaign.campaigntypes && unicampaign.campaigntypes.length>0 && 
-	          	(unicampaign.campaigntypes[0].top_up_money || upgrade_membership ) )
+	          	unicampaign.campaigntypes[0].top_up_money  )
 	          	? ('● Member: Top up $ ' + unicampaign.campaigntypes[0].top_up_money  + ' and be our '
 	          	  + upgrade_membership + ' member') : ''}</p>
 	          <p>{ univoucher.length>0 ? '● Vouchers: ' +  univoucher + '  % off' : ''}</p>
@@ -516,7 +518,7 @@ class CampaignCenter extends React.Component {
 	          <p>{ (campaign_condition.every_purchase_l_drinks_flavors &&campaign_condition.every_purchase_l_drinks_flavors.length>0 )? 
 	          	'● With every purchase of ' + productname  + ' large size drinks' : ''}</p>
 	          <p>{ (campaign_condition.every_purchase_products &&campaign_condition.every_purchase_products.length>0 )? 
-	          	'● With every purchase of ' + category   : ''}</p>
+	          	'● With every purchase of ' + productname   : ''}</p>
 	          {online_actions}
 	          <p>{ (campaign_condition.every_customers ) ? 
 	          	'● Select Every ' + campaign_condition.every_customers + ' th customers' : ''}</p>

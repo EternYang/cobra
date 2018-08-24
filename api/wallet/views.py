@@ -49,8 +49,7 @@ class WalletViewSet(mixins.UpdateModelMixin,
         )
         if self.request.user.role.name not in (0, 1, 4):
             self.queryset = self.queryset.filter(member=self.request.user)
-        return super(WalletViewSet, self).get_queryset()\
-
+        return super(WalletViewSet, self).get_queryset()
 
     @action(methods=['POST'], detail=True, permission_classes=[IsApp])
     def deduction(self, request, pk=None, **kwargs):

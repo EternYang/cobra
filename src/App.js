@@ -4,7 +4,7 @@ import Membership                 from './Component/Membership/Membership';
 import Campaign                   from './Component/Campaign/Campaign';
 import WrappedHorizontalLoginForm from './login/index';
 import InformationDetail          from './Component/Membership/M_component/information/information_detail';
-import WalletCoupon               from './Component/Membership/M_component/walletcoupon/walletcoupon';
+import WalletCoupon               from './Component/walletcoupon/walletcoupon';
 import Performance                from './Component/Performance/Performance';
 import {
   BrowserRouter as Router,

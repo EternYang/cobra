@@ -36,7 +36,7 @@ class Campaign extends React.Component {
     	membership:[],
     	Conditiondata:{},
     	Typedata:{},
-    	Editdata:{outlets:[],membership:[],topping:[]},
+    	Editdata:{outlets:[],membership:[],topping:[],univoucher:[],productname:[],category:[],upgrade_membership:''},
     	Archivedvisible:false,
     	date:[false,false,false],
     	termdata:[false,false,false,false,false],
@@ -98,7 +98,6 @@ class Campaign extends React.Component {
 	async onChildChanged2(data,data2){
 			let {submitdata,Archivedvisible} = this.state
 			let groupdata    = [] 
-			console.log(data)
 			Archivedvisible=data
 			groupdata = data2
 			submitdata = { ...submitdata,...groupdata }
@@ -221,8 +220,8 @@ class Campaign extends React.Component {
 	  	id:'',
 	  	submitdata:{page_size:6},
 	  	discount_per:'',
-	  	Typedata : '',
-	  	Conditiondata: '',
+	  	Typedata : {},
+	  	Conditiondata: {},
 	  	Editdata:{outlets:[],membership:[],topping:[]}
 	  });
 	}
@@ -357,6 +356,8 @@ class Campaign extends React.Component {
 			every_purchase_m_drinks_flavors = []
 			every_purchase_l_drinks_flavors = []
 			every_purchase_products         = value
+		}else{
+			Conditiondata[name] = value
 		}
 	  	Conditiondata = {...Conditiondata,every_purchase_m_drinks_flavors,every_purchase_l_drinks_flavors,every_purchase_products}
 	  	this.setState({ Conditiondata })
@@ -388,6 +389,9 @@ class Campaign extends React.Component {
 		} 
 		if(submitdata.id && submitdata.id>0){
 			try{
+				let {unicampaign}   = this.state
+				let campaigntypesID     = unicampaign.campaigntypes[0].id
+				let campaign_conditionID= unicampaign.campaigntypes[0].campaign_condition.id
 				let CampaignID = await patchCampaign(submitdata,Token)
 					CampaignID = CampaignID.data.id
 				let { Typedata , Conditiondata } = this.state
@@ -414,12 +418,13 @@ class Campaign extends React.Component {
 						Conditiondata.every_purchase_m_drinks_flavors = []
 						Conditiondata.every_purchase_l_drinks_flavors = []
 					}
-					console.log(Conditiondata)
-					let CampaignconditionID = await patchCampaignCondition  (Conditiondata,Token)
+					let id = submitdata.id
+					delete Conditiondata.id
+					let CampaignconditionID = await patchCampaignCondition  (Conditiondata,Token,campaign_conditionID)
 					CampaignconditionID = CampaignconditionID.data.id
-					Typedata = {...Typedata,campaign_condition:CampaignconditionID,campaign:CampaignID,id }
-					await patchCampaignType(Typedata,Token)
-				this.setState({ submitdata:'',id:'' ,Conditiondata:'',Typedata:'' })
+					Typedata = {...Typedata,campaign_condition:CampaignconditionID,campaign:CampaignID}
+					await patchCampaignType(Typedata,Token,campaigntypesID)
+				this.setState({ submitdata:'',id:'' ,Conditiondata:{},Typedata:'' })
 				this.info(message)
 				let  e = {target:{value:''}}
 				this.Click(e)
@@ -439,13 +444,14 @@ class Campaign extends React.Component {
 					    CampaignID = CampaignID.data.id
 					let { Typedata , Conditiondata } = this.state   
 						Conditiondata = {...Conditiondata,campaign:CampaignID}
+						
 					let CampaignconditionID = await sendCampaignCondition(Conditiondata,Token)
 						CampaignconditionID = CampaignconditionID.data.id
 					Typedata = {...Typedata,campaign_condition:CampaignconditionID,campaign:CampaignID}
 						await sendCampaignType(Typedata,Token)
 					message = 'success'
 					this.info(message)
-					this.setState({ submitdata:'',id:'' ,Conditiondata:'',Typedata:'' })
+					this.setState({ submitdata:'',id:'' ,Conditiondata:{},Typedata:'' })
 					let req2       = await reqcampaign(Token)
 				  	let count      = req2.data.count
 				  	let coupon     = req2.data.results
@@ -499,7 +505,8 @@ class Campaign extends React.Component {
   				this.info('End Data must greater than Launch Date')
   			}else if(date2>unicampaign.expiring_date){
   				this.handledata(3)
-  			}else if(unicampaign.expiring_date>date2 && date2>unicampaign.effective_date){
+  			}else if((unicampaign.expiring_date>date2  || unicampaign.expiring_date===date2) && 
+  					 (date2>unicampaign.effective_date || date2===unicampaign.effective_date)){
   				this.handledata(2)
   			}else if(date2<unicampaign.effective_date){
   				this.handledata(1)
@@ -524,9 +531,59 @@ class Campaign extends React.Component {
 	  	Typedata = {...Typedata,upgrade_membership:e}
 	  	this.setState({ Typedata })
     }
+    typedisappear = (e,name) =>{
+    	let {termdata,Typedata,unicampaign,id } = this.state
+    	if(name==='top_up_money'){
+    		Typedata.upgrade_membership=null
+    	}
+    	if(id){
+    		unicampaign.campaigntypes[0][name]=null
+    	}
+    	Typedata[name] = null
+    	termdata[e]  = false
+    	this.setState({termdata,unicampaign})
+    }
+    Conditiondisappear= (e,name,r) =>{
+    	let {termdata2,Conditiondata,unicampaign,id } = this.state
+    	let campaign_condition = {}
+    	if( unicampaign.campaigntypes && unicampaign.campaigntypes[0] && unicampaign.campaigntypes[0].campaign_condition){
+			campaign_condition = unicampaign.campaigntypes[0].campaign_condition
+		}
+    	if(e==='0'){
+    		console.log('111')
+    		termdata2[0]= [false,false,false,false]
+    		Conditiondata[name] = null
+    	}else if(e==='1'){
+    		termdata2[1] = [false,false,false]
+    		Conditiondata[name] = []
+    	}else if(e==='2'){
+    		termdata2[2][r] = false
+    		if(id){
+    			let name2 =campaign_condition[name]
+    			if(name2===null){
+    				name2=[]
+    			}
+    			let index = name2.indexOf(r)
+    			if(index!==-1){
+    				campaign_condition[name].splice(index,1)
+    			}
+	    		Conditiondata = campaign_condition
+	    		unicampaign.campaigntypes[0].campaign_condition = campaign_condition
+    		}else{
+    			let name2 = Conditiondata[name]
+    			
+	    		let index = name2.indexOf(r)
+	    		Conditiondata[name].splice(index,1)
+    		}
+    	}else{
+    		termdata2[e]= false
+    		Conditiondata[name] = null
+    	}
+    	this.setState({termdata2,unicampaign,Conditiondata})
+    }
 	render() {
 		let { campaigndata,count,data,Drawerdata,groupdata,outlet,voucher,termdata,Editdata,
-			termdata2,date,category,product,unicampaign,discountdollarup,discount_per,membership } = this.state
+			termdata2,date,product,unicampaign,discountdollarup,discount_per,membership } = this.state
 		const page = data.page
 		let dateMemu = []
 		for(let i = 1; i<32 ; i++){
@@ -536,6 +593,59 @@ class Campaign extends React.Component {
 		membership.map((item,index)=>(
 			children.push(<Option key={item.id} value={item.id}>{item.name}</Option>)
 		))
+		let campaigntypes = {}
+		if(unicampaign.campaigntypes && unicampaign.campaigntypes.length>0){
+			campaigntypes = unicampaign.campaigntypes[0]
+		}
+		let campaign_condition = {}
+		if( unicampaign.campaigntypes && unicampaign.campaigntypes[0] && unicampaign.campaigntypes[0].campaign_condition){
+			
+			campaign_condition = unicampaign.campaigntypes[0].campaign_condition
+		}
+		let online_actions = []
+		if( campaign_condition.online_actions && campaign_condition.online_actions.length>0 ){
+			online_actions = campaign_condition.online_actions
+		}
+		let payment_modes = []
+	  	 if(campaign_condition && campaign_condition.payment_modes && campaign_condition.payment_modes.length>0){
+	  	 	campaign_condition.payment_modes.map((item,index)=>{
+	  	 		if(item===0){
+	  	 			payment_modes.push('Walk-in')
+	  	 		}else if(item===1){
+	  	 			payment_modes.push('Mobile ordering')
+	  	 		}
+	  	 		return payment_modes
+	  	 	})
+	  	 }
+	  	 let ordering_modes = []
+	  	 if(campaign_condition && campaign_condition.ordering_modes && campaign_condition.ordering_modes.length>0){
+  	 	campaign_condition.ordering_modes.map((item,index)=>{
+  	 		if(item===0){
+  	 			ordering_modes.push('cash' )
+  	 		}else if(item===1){
+  	 			ordering_modes.push('apple pay')
+  	 		}else if(item===2){
+  	 			ordering_modes.push('andriod pay')
+  	 		}else if(item===3){
+  	 			ordering_modes.push('visa')
+  	 		}else if(item===4){
+  	 			ordering_modes.push('mastercard')
+  	 		}else if(item===5){
+  	 			ordering_modes.push('ezylink')
+  	 		}else if(item===6){
+  	 			ordering_modes.push('QR code')
+  	 		}else if(item===7){
+  	 			ordering_modes.push('favepay')
+  	 		}else if(item===8){
+  	 			ordering_modes.push('grabpay')
+  	 		}else if(item===9){
+  	 			ordering_modes.push('Alipay')
+  	 		}else if(item===10){
+  	 			ordering_modes.push('Internet Banking')
+  	 		}
+  	 		return ordering_modes
+  	 	})
+  	 }
 		const menu = (
 		  <Menu>
 		    <Menu.Item  onClick={this.termdata}>%Discount</Menu.Item>
@@ -697,7 +807,7 @@ class Campaign extends React.Component {
 	         		 <Select mode="multiple" 
 	         		 style={{ width:'103%'  ,marginLeft: '-2%'}}
 	         		 onChange={(value)=>this.selectdata(value,'outlets')}
-	         		 placeholder={Editdata.outlets ? Editdata.outlets : "Please type address"}
+	         		 placeholder={Editdata.outlets.length>0 ? Editdata.outlets : "Please type Participant"}
 	         		 className='Participantselect'>
 				      {
 				      	outlet ? outlet.map((item,index)=>(
@@ -724,43 +834,53 @@ class Campaign extends React.Component {
 				  </Dropdown>
 			  </h2>
 	     	  <div className='campaignContent Content' >
-	          <div style={{ display:((termdata[0] || unicampaign.first_discount_per) && discountdollarup) ? "block" : "none"  }}  >
+	     	  { ((termdata[0] || campaigntypes.first_discount_per) && discountdollarup) ?
+	          <div>
 	         			● Discount: Enjoy 
 	         			<input value = { discount_per }
-	         			placeholder={unicampaign.first_discount_per ? unicampaign.first_discount_per : ""}
+	         			placeholder={campaigntypes.first_discount_per ? campaigntypes.first_discount_per : ""}
 	         			type='number' name='first_discount_per' onChange={this.submitTypedata}/>% off
-      			</div >
-      			<div style={{ display:(termdata[1] || unicampaign.last_discount_price)? "block" : "none"  }} >
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.typedisappear.bind(this,'0','first_discount_per')}/>
+      			</div >    : null }
+	     	  { (termdata[1] || campaigntypes.last_discount_price) ? 
+      			<div>
 	         			● Discount: $ 
-	         			<input  placeholder={unicampaign.last_discount_price ? unicampaign.last_discount_price : ""}
+	         			<input  placeholder={campaigntypes.last_discount_price ? campaigntypes.last_discount_price : ""}
 	         			type='number' name={discountdollarup ? 'last_discount_price' : 'first_discount_price'} onChange={this.submitTypedata}/>off
 	         			&nbsp;&nbsp; { discountdollarup ? <Icon style={{ display:(termdata[0] && termdata[1]  )? "inline-block" : "none"}}  
-	         			           
 	         			type="arrow-up"  onClick={ this.discountdollarup }/> :  ''}
-      			</div > 
-      			
-      			<div style={{ display:(termdata[0] && discountdollarup===false) ? "block" : "none"  }}  >
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.typedisappear.bind(this,'1','last_discount_price')}/>
+      			</div > : null}
+      			{  ((termdata[0] && discountdollarup===false) ||  campaigntypes.last_discount_per) ? 
+      			<div>
 	         			● Discount: Enjoy 
 	         			<input value = { discount_per }
-	         			placeholder={unicampaign.last_discount_per ? unicampaign.last_discount_per : ""}
+	         			placeholder={campaigntypes.last_discount_per ? campaigntypes.last_discount_per : ""}
 	         			type='number' name='last_discount_per' onChange={this.submitTypedata}/>% off
 	         			&nbsp;&nbsp;<Icon style={{ display:(termdata[0] && termdata[1] && !discountdollarup )? "inline-block" : "none"  }}
 	         			type="arrow-up"  onClick={ this.discountdollarup }/>
-      			</div >
-      			<div style={{ display:(termdata[2] || unicampaign.limit_first_redemption)? "block" : "none"  }} >
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.typedisappear.bind(this,'0','last_discount_per')}/>
+      			</div >  : null}
+      			{  (termdata[2] || campaigntypes.top_up_money) ? 
+      			<div>
 	         			● Member: Top up $  
-	         			<input type='number' name='top_up_money' onChange={this.submitTypedata}/>
+	         			<input 
+	         			placeholder={campaigntypes.top_up_money ? campaigntypes.top_up_money : ""}
+	         			type='number' name='top_up_money' onChange={this.submitTypedata}/>
 	         			 and be our
 	         			 <Select
+	         			 placeholder={Editdata.upgrade_membership ? Editdata.upgrade_membership : ""}
          			    className='nobottom'
 					    style={{ minWidth: '100px',height:'20px' }}
 					    onChange={this.membershipChange} >
 					    {children}
-					  </Select> member
-      			</div >
-      			<div style={{ display:(termdata[3] || unicampaign.limit_first_redemption)? "block" : "none"  }} >
+					  </Select> member&nbsp; <Icon type="minus-circle"  onClick={this.typedisappear.bind(this,'2','top_up_money')}/>
+      			</div >  : null}
+      			{  (termdata[3] || campaigntypes.limit_first_redemption) ? 
+      			<div>
 	         			● Vouchers: 
 	         			<Select 
+	         			placeholder={Editdata.univoucher ? campaigntypes.univoucher : ""}
 	         			onChange={(value)=>this.selectTypedata(value,'free_vouchers')}
 	         			mode="multiple"
 	         			className='nobottom'
@@ -771,12 +891,17 @@ class Campaign extends React.Component {
 						      	))      : ''
 						      }
 					      </Select>
-      			</div >
-      			<div style={{ display:termdata[4] ? "block" : "none"  }} >
+					      &nbsp; <Icon type="minus-circle"  onClick={this.typedisappear.bind(this,'3','free_vouchers')}/>
+      			</div > : null}
+      			{  (termdata[4] || campaigntypes.bouns_points ) ? 
+      			<div>
 	         			● With every $1 can get 
-	         			<input type='number' name='bouns_points' onChange={this.submitTypedata}/>
+	         			<input 
+	         			placeholder={campaigntypes.bouns_points ? campaigntypes.bouns_points : ""}
+	         			type='number' name='bouns_points' onChange={this.submitTypedata}/>
 	         			 ‘bubble’ points
-      			</div >
+	         			 &nbsp; <Icon type="minus-circle"  onClick={this.typedisappear.bind(this,'4','bouns_points')}/>
+      			</div >  : null}
 	         </div> 
 	          	
 	          	
@@ -788,25 +913,39 @@ class Campaign extends React.Component {
 				  </Dropdown>
 			  </h2>
 	     	  <div className='campaignContent Content' >
-	          <div style={{ display:termdata2[0][0] ? "block" : "none"  }} >
+	     	  {  (termdata2[0][0] || campaign_condition.every_spent)  ? 
+	          <div>
 	         			● With every $ 
-	         			<input type='number' name='every_spent' onChange={this.submitConditiondata}/>
+	         			<input 
+	         			placeholder={campaign_condition.every_spent ? campaign_condition.every_spent : ""}
+	         			type='number' name='every_spent' onChange={this.submitConditiondata}/>
 	         			  spent
-      			</div >
-      			<div style={{ display:termdata2[0][1] ? "block" : "none"  }} >
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'0','every_spent')}/>  
+      			</div >: null}
+	     	  {  (termdata2[0][1]  || campaign_condition.every_top_up) ? 
+      			<div>
 	         			● With every $ 
-	         			<input type='number' name='every_top_up' onChange={this.submitConditiondata}/>
-	         			  top up to E-wallet 
-      			</div >
-      			<div style={{ display:termdata2[0][2] ? "block" : "none"  }} >
+	         			<input 
+	         			placeholder={campaign_condition.every_top_up ? campaign_condition.every_top_up : ""}
+	         			type='number' name='every_top_up' onChange={this.submitConditiondata}/>
+	         			  top up to E-wallet
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'0','every_top_up')}/>  
+      			</div >: null}
+	     	  {  (termdata2[0][2] || campaign_condition.every_use_points) ? 
+      			<div>
 	         			● With every use of
-	         			<input type='number' name='every_use_points' onChange={this.submitConditiondata}/>
+	         			<input 
+	         			placeholder={campaign_condition.every_use_points ? campaign_condition.every_use_points : ""}
+	         			type='number' name='every_use_points' onChange={this.submitConditiondata}/>
 	         			  'bubble' points
-      			</div >
-      			{ termdata2[1][0] ? 
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'0','every_use_points')}/>  
+      			</div >  : null}
+      			{ (termdata2[1][0] || (campaign_condition.every_purchase_m_drinks_flavors &&
+      				campaign_condition.every_purchase_m_drinks_flavors.length>0)) ?
 	          <div >
 	         			● With every purchase of 
 	         			<Select 
+	         			placeholder={Editdata.productname ? Editdata.productname : "Please select"}
 	         			mode="multiple"
 	         			className="nobottom"
 	         			onChange={(value)=>this.seletConditiondata(value,'every_purchase_m_drinks_flavors')}>
@@ -817,11 +956,14 @@ class Campaign extends React.Component {
 					      }
 					      </Select>
 	         			  &nbsp;medium size drinks
-      			</div >	 : ''}
-      			{ termdata2[1][1] ? 
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'1','every_purchase_m_drinks_flavors')}/>
+      			</div >	 : null}
+      			{ (termdata2[1][1] || (campaign_condition.every_purchase_l_drinks_flavors && 
+      				campaign_condition.every_purchase_l_drinks_flavors.length>0)) ?
       			 <div >
 	         			● With every purchase of 
 	         			<Select
+	         			placeholder={Editdata.productname ? Editdata.productname : "Please select"}
 	         			mode="multiple"
 	         			className="nobottom"
 	         			onChange={(value)=>this.seletConditiondata(value,'every_purchase_l_drinks_flavors')}
@@ -833,62 +975,91 @@ class Campaign extends React.Component {
 					      }
 					      </Select>
 	         			  &nbsp;large size drinks
-      			</div >   : ''}
-      			{ termdata2[1][2] ? 
+	         			&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'1','every_purchase_l_drinks_flavors')}/>  
+      			</div >   : null}
+      			{ (termdata2[1][2] || (campaign_condition.every_purchase_products 
+      				&& campaign_condition.every_purchase_products.length>0))?
       			 <div  >
 	         			● With every purchase of 
 	         			<Select  
+	         			placeholder={Editdata.productname ? Editdata.productname : "Please select"}
 	         			mode="multiple"
 	         			className="nobottom"
 	         			onChange={(value)=>this.seletConditiondata(value,'every_purchase_products')}
 	         			 >
 					      {
-					      	category ? category.map((item,index)=>(
+					      	product ? product.map((item,index)=>(
 					      		<Option key={item.id} value={item.id}>{item.name}</Option>
-					      	))       : ''
+					      	))      : ''
 					      }
 					      </Select>
-      			</div >  : ''}
-      			 <div style={{ display:termdata2[2][0] ? "block" : "none"  }} >
+					    &nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'1','every_purchase_products')}/>  
+      			</div >  : null}
+      			 { (termdata2[2][0] || online_actions.indexOf(0)!==-1) ?
+      			 <div>
 	         			● Like our facebook page itea.sg
-      			</div >
-      			<div style={{ display:termdata2[2][1] ? "block" : "none"  }} >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'2','online_actions',0)}/>		
+      			</div >: null}
+      			 { (termdata2[2][1] || online_actions.indexOf(1)!==-1) ?
+      			<div>
 	         			● Like our facebook post
-      			</div >
-      			<div style={{ display:termdata2[2][2] ? "block" : "none"  }} >
+	         	    &nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'2','online_actions',1)}/>		
+      			</div >: null}
+      			{ (termdata2[2][2] || online_actions.indexOf(2)!==-1)?
+      			<div>
 	         			● Rate us on facebook
-      			</div >
-      			<div style={{ display:termdata2[2][3] ? "block" : "none"  }} >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'2','online_actions',2)}/>	
+      			</div >: null}
+      			{ (termdata2[2][3] || online_actions.indexOf(3)!==-1)?
+      			<div>
 	         			● Post on our facebook page g
-      			</div >
-      			<div style={{ display:termdata2[2][4] ? "block" : "none"  }} >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'2','online_actions',3)}/>		
+      			</div >: null}
+      			{ (termdata2[2][4] || online_actions.indexOf(4)!==-1)?
+      			<div>
 	         			● Share our facebook page/ post
-      			</div >
-      			<div style={{ display:termdata2[2][5] ? "block" : "none"  }} >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'2','online_actions',4)}/>	
+      			</div >: null}
+      			{ (termdata2[2][5] || online_actions.indexOf(5)!==-1)?
+      			<div>
 	         			● Like our instagram
-      			</div >
-      			<div style={{ display:termdata2[3] ? "block" : "none"  }} >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'2','online_actions',5)}/>	
+      			</div >: null}
+      			{ (termdata2[3] || campaign_condition.every_customers) ?
+      			<div>
 	         			● Select Every 
-	         			<input type='number' name='every_customers' onChange={this.submitConditiondata}/>
+	         			<input 
+	         			placeholder={campaign_condition.every_customers? campaign_condition.every_customers : ""}
+	         			type='number' name='every_customers' onChange={this.submitConditiondata}/>
 	         			th customers
-      			</div >
-      			<div style={{ display:termdata2[4] ? "block" : "none"  }} >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'3','every_customers')}/>	
+      			</div >: null}
+      			{ (termdata2[4] || campaign_condition.limit_redemption) ?
+      			<div>
 	         			● Limit to
-	         			<input type='number' name='limit_redemption' onChange={this.submitConditiondata}/>
+	         			<input 
+	         			placeholder={campaign_condition.limit_redemption? campaign_condition.limit_redemption : ""}
+	         			type='number' name='limit_redemption' onChange={this.submitConditiondata}/>
 	         			 redemption
-      			</div >
-      			<div className='nobottom' style={{ display:termdata2[5] ? "block" : "none"  }} >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'4','limit_redemption')}/>	
+      			</div >: null}
+      			{ (termdata2[5] || (payment_modes && payment_modes.length>0)) ?
+      			<div className='nobottom'  >
 	         			● Mode of ordering：
 	         			<Select 
+	         			placeholder={ payment_modes ? payment_modes : ""}
 	         			mode="multiple"
 	         			onChange={(value)=>this.seletConditiondata(value,'payment_modes')}  >
 					      		<Option key= '0' value='0'>Walk-in</Option>
 					      		<Option key= '1' value='1'>Mobile ordering</Option>
 					      </Select>
-      			</div >
-      			<div className='nobottom' style={{ display:termdata2[6] ? "block" : "none"  }} >
+					 &nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'5','payment_modes')}/>	
+      			</div >: null}
+      			{ (termdata2[6] || (campaign_condition.ordering_modes && campaign_condition.ordering_modes.length>0)) ?
+      			<div className='nobottom' >
 	         			● Mode of payment：
 	         			<Select 
+	         			placeholder={ campaign_condition.ordering_modes ? ordering_modes : ""}
 	         			mode="multiple"
 	         			onChange={(value)=>this.seletConditiondata(value,'ordering_modes')} >
 					      		<Option key= '0' value='0'>cash</Option>
@@ -903,14 +1074,18 @@ class Campaign extends React.Component {
 					      		<Option key= '9' value='9'>Alipay</Option>
 					      		<Option key= '10' value='10'>Internet Banking</Option>
 					      </Select>
-      			</div >
-      			<div style={{ display:termdata2[7] ? "block" : "none"  }} >
+					    &nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'6','ordering_modes')}/>	
+      			</div >: null}
+      			{ (termdata2[7] || campaign_condition.other_actions )?
+      			<div >
 	         			<textarea 
+	         			style={{ width:'400px' }}
 	         			placeholder="● Please describe the action"
 	         			name='other_actions' 
 	         			onChange={this.submitConditiondata}>
 	         			</textarea >
-      			</div >
+	         		&nbsp; <Icon type="minus-circle"  onClick={this.Conditiondisappear.bind(this,'7','other_actions')}/>	
+      			</div >: null}
 	      			<div className='inputTableButton' >
 		            <Button  className='btn2' onClick={this.PreviousStep}>Previous step</Button>
 		            <Button  className='btn1' 

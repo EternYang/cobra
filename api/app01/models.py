@@ -282,8 +282,7 @@ class CampaignCondition(models.Model):
 
 
 class Campaign(models.Model):
-    #
-    name = models.CharField('Campaign name', max_length=32)
+    name = models.CharField('Campaign name', max_length=128)
     description = models.CharField('Campaign description', max_length=128, null=True, blank=True)
     occupations = models.ManyToManyField(to='Occupation', related_name='campaigns',
                                          null=True, blank=True)
@@ -396,7 +395,8 @@ class Toppings(models.Model):
 
 
 class Voucher(models.Model):
-    name = models.CharField('Voucher name', max_length=64)
+    #
+    name = models.CharField('Voucher name', max_length=128)
     Product, Upgrade, Cash, Discount, BuyOneGetOne, Toppings = range(6)
     TYPE_CHOICES = (
         (Product, 'Product'),

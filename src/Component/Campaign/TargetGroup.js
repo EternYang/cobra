@@ -222,7 +222,7 @@ class TargetGroup extends React.Component {
 			    />
 			    <button className='btn1' onClick={this.addAge}><Icon type="plus" />AddAge</button>
 			    <br/>
-			   	<button className='btn2' onClick={this.closeTargetGroup}>Cancle</button>
+			   	<button className='btn2' onClick={this.closeTargetGroup}>Cancel</button>
 			    <button className='btn3' onClick={this.OK}>OK!</button>
 				</div>
     	    </div>

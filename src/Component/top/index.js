@@ -38,8 +38,9 @@ class Top extends React.Component {
 	         <div>
 	         	<div className="top">
 							<ul>
-								<li className="CONBRA"><Col span={3}>CONBRA CRM</Col></li>
+								<li className="CONBRA"><Col span={3}>COBRA CRM</Col></li>
 								<li><Col span={3}><Link  to="/Product" >Product</Link></Col></li>
+								<li><Col span={3}><Link  to="/WalletCoupon" >Voucher</Link></Col></li>
 								<li><Col span={3}><Link  to="/Membership" >Membership</Link></Col></li>
 								<li><Col span={3}><Link  to="/Campaign" >Campaign</Link></Col></li>
 								<li>

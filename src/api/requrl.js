@@ -42,10 +42,10 @@ export const sendCampaignType = (data,Token) => ajax(URL + 'campaign/campaign-ty
 export const patchCampaign = (data,Token) => ajax(URL + 'campaign/'+data.id+'/',
 									data,Token,"patch")
 
-export const patchCampaignCondition = (data,Token) => ajax(URL + 'campaign/campaign-condition/'+data.id+'/',
+export const patchCampaignCondition = (data,Token,id) => ajax(URL + 'campaign/campaign-condition/'+id+'/',
 									data,Token,"patch")
 
-export const patchCampaignType = (data,Token) => ajax(URL + 'campaign/campaign-type/'+data.id+'/',
+export const patchCampaignType = (data,Token,id) => ajax(URL + 'campaign/campaign-type/'+id+'/',
 									data,Token,"patch")
 
 export const deleteCampaign = (data,Token) => ajax(URL + 'campaign/'+data+'/',

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Table,Button,DatePicker } from 'antd';
-import { Link } from 'react-router-dom';
+import { Table,DatePicker } from 'antd';
 import './Ewallet.css';
 
 const {RangePicker}=DatePicker
@@ -84,7 +83,6 @@ class Ewallet extends React.Component {
 		
     return (
     	<div className='Ewallet'>
-	    	<Link  to="/WalletCoupon" ><Button>Coupon</Button></Link>
 	    	 <div className="input-group col-md-2 search">
 					<input 
 					type="text" 
